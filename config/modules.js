@@ -80,8 +80,7 @@ function parseTypeScriptAliases() {
     parsedAliases[webpackAliasName] = webpackAliasValue;
   });
 
-  console.log('WEBPACK: ', parsedAliases)
-  console.log(paths.appNodeModules)
+  console.log('Webpack resolve aliases: ', parsedAliases)
 
   return parsedAliases;
 }
