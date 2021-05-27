@@ -76,7 +76,7 @@ function parseTypeScriptAliases() {
   const aliasNames = Object.keys(tsAliases);
   aliasNames.forEach((aliasName) => {
     const webpackAliasName = aliasName.replace('/*', '');
-    const webpackAliasValue = tsAliases[aliasName][0].replace(/^@root/, paths.appPath).replace('/*', '');
+    const webpackAliasValue = tsAliases[aliasName][0].replace('/*', '');
     parsedAliases[webpackAliasName] = webpackAliasValue;
   });
 
