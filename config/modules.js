@@ -76,9 +76,12 @@ function parseTypeScriptAliases() {
   const aliasNames = Object.keys(tsAliases);
   aliasNames.forEach((aliasName) => {
     const webpackAliasName = aliasName.replace('/*', '');
-    const webpackAliasValue = tsAliases[aliasName][0].replace('/*', '');
+    const webpackAliasValue = tsAliases[aliasName][0].replace(/^@root/, paths.appPath).replace('/*', '');
     parsedAliases[webpackAliasName] = webpackAliasValue;
   });
+
+  console.log('WEBPACK: ', parsedAliases)
+  console.log(paths.appNodeModules)
 
   return parsedAliases;
 }
@@ -100,7 +103,6 @@ function getWebpackAliases(options = {}) {
   if (path.relative(paths.appPath, baseUrlResolved) === '') {
     return {
       src: paths.appSrc,
-      // me: `${paths.appSrc}/me`,
       ...parseTypeScriptAliases()
     };
   }

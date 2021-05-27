@@ -1,6 +1,6 @@
 {
-  "_from": "react-scripts@^4.0.2",
-  "_id": "react-scripts@4.0.3",
+  "_from": "react-scripts@^4.0.3",
+  "_id": "react-scripts@4.0.4-a9s",
   "_inBundle": false,
   "_integrity": "sha512-S5eO4vjUzUisvkIPB7jVsKtuH2HhWcASREYWHAQ1FP5HyCv3xgn+wpILAEWkmy+A+tTNbSZClhxjT3qz6g4L1A==",
   "_location": "/react-scripts",
@@ -380,5 +380,5 @@
     "directory": "packages/react-scripts"
   },
   "types": "./lib/react-app.d.ts",
-  "version": "4.0.3"
+  "version": "4.0.4-a9s"
 }

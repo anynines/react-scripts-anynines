@@ -15,6 +15,10 @@ process.on('unhandledRejection', err => {
   throw err;
 });
 
+// Set the @root/* path alias in typescript.paths.json to the current
+// app directory to work with a Happy Mobile dependency package
+require('react-scripts/config/tsAliases').rewrite()
+
 const spawn = require('react-dev-utils/crossSpawn');
 const args = process.argv.slice(2);
 
@@ -24,7 +28,7 @@ const scriptIndex = args.findIndex(
 const script = scriptIndex === -1 ? args[0] : args[scriptIndex];
 const nodeArgs = scriptIndex > 0 ? args.slice(0, scriptIndex) : [];
 
-if (['build', 'eject', 'start', 'test'].includes(script)) {
+if (['build', 'eject', 'start', 'test', 'setAliases'].includes(script)) {
   const result = spawn.sync(
     process.execPath,
     nodeArgs
