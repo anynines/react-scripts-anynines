@@ -80,6 +80,8 @@ function parseTypeScriptAliases() {
     parsedAliases[webpackAliasName] = webpackAliasValue;
   });
 
+  console.log('Webpack resolve aliases: ', parsedAliases)
+
   return parsedAliases;
 }
 
@@ -100,7 +102,6 @@ function getWebpackAliases(options = {}) {
   if (path.relative(paths.appPath, baseUrlResolved) === '') {
     return {
       src: paths.appSrc,
-      // me: `${paths.appSrc}/me`,
       ...parseTypeScriptAliases()
     };
   }

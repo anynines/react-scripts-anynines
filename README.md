@@ -1,6 +1,8 @@
 # react-scripts-anynines
 
 This a modified fork of react-scripts that allows TypeScript path aliases.
+It is built specifically to work with the happy-mobile package but can be 
+used for all aliases except those being set automatically (see below).
 
 It expects these to be in a file called tsconfig.paths.json looking e.g. like this: 
 ```
@@ -25,6 +27,14 @@ This file has then to be implemented in the regular tsconfig.json:
 
 The webpack aliases for building are parsed dynamically from this.
 Other mappings, like for ESLint or Jest have to be set manually.
+
+## Automation 
+
+The following alises are reserved and will be overwritten on each run of react-scripts:
+
+`"@root/*"`, `"@rootSrc"`, `"@src"`
+
+Other alias names can be used as needed.
 
 ## react-scripts
 

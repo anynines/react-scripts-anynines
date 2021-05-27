@@ -355,6 +355,7 @@ module.exports = function (webpackEnv) {
         // please link the files into your node_modules/ and let module-resolution kick in.
         // Make sure your source files are compiled, as they will not be processed in any way.
         new ModuleScopePlugin(paths.appSrc, [
+          paths.appNodeModules,
           paths.appPackageJson,
           reactRefreshOverlayEntry,
         ]),
@@ -403,7 +404,7 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: paths.appSrc,
+              include: [paths.appSrc, paths.appNodeModules],
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(
