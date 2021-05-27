@@ -1,6 +1,6 @@
 const fs = require('fs');
 const paths = require('react-scripts/config/paths');
-const package = require(`${paths.appPackageJson}`)
+const appPackage = require(`${paths.appPackageJson}`)
 
 const CORE = 'core';
 const IMPLEMENTATION = 'implementation';
@@ -13,8 +13,8 @@ const IMPLEMENTATION = 'implementation';
  */
 function evaluateHappyMode() {
   if (
-    package.dependencies
-    && typeof package.dependencies['happy-mobile'] === 'string'
+    appPackage.dependencies
+    && typeof appPackage.dependencies['happy-mobile'] === 'string'
   ) {
     return IMPLEMENTATION;
   } else {
