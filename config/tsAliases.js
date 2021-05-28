@@ -81,7 +81,8 @@ function rewrite() {
     fs.writeFileSync(configPath, configFileContent);
 
   } catch (error) {
-    console.log('ERROR: Could not parse TypeScript aliases. Creating new tsconfig.paths.json...');
+    console.log('ERROR: Could not parse TypeScript aliases: ', error);
+    console.log('Creating new tsconfig.paths.json...');
     create();
   }
 }
