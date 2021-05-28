@@ -69,23 +69,22 @@ function rewrite() {
 
   try {
     const config = JSON.parse(configFileContent)
+    console.log()
 
-    config.paths = {
-      ...config.paths,
+    config.compilerOptions.paths = {
+      ...config.compilerOptions.paths,
       ...tsPaths
     }
 
     console.log(config);
     configFileContent = JSON.stringify(config, null, 2)
-    fs.writeFileSync(configPath, config);
+    fs.writeFileSync(configPath, configFileContent);
 
-  } catch {
+  } catch (error) {
     console.log('ERROR: Could not parse TypeScript aliases. Creating new tsconfig.paths.json...');
     create();
   }
 }
-
-create()
 
 module.exports = {
   create: create,
