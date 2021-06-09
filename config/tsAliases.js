@@ -28,18 +28,20 @@ function evaluateHappyMode() {
  * 
  * @returns path: String
  */
-function getHappySrcPath() {
-  if (evaluateHappyMode() === IMPLEMENTATION) {
-    return `${paths.appNodeModules}/happy-mobile/src/*`
-  } else {
-    return `${paths.appSrc}/*`
-  }
-}
+// function getHappySrcPath() {
+//   if (evaluateHappyMode() === IMPLEMENTATION) {
+//     return `${paths.appNodeModules}/happy-mobile/src/*`
+//   } else {
+//     return `${paths.appSrc}/*`
+//   }
+// }
+
+const isImplemetation = (evaluateHappyMode() === IMPLEMENTATION)
 
 const tsPaths = {
-  '@root/*': [`${paths.appPath}/*`],
-  '@rootSrc/*': [`${paths.appPath}/src/*`],
-  '@src/*': [getHappySrcPath()]
+  '@root/*': isImplemetation ? [`${paths.appPath}/*`] : ['./*'],
+  '@rootSrc/*': isImplemetation ? [`${paths.appPath}/src/*`] : ['./src/*'],
+  '@src/*': isImplemetation ? [`${paths.appNodeModules}/happy-mobile/src/*`] : ['./src/*']
 }
 
 /**
@@ -48,7 +50,7 @@ const tsPaths = {
 function create() {
   const tsOptions = {
     compilerOptions: {
-      baseUrl: `${paths.appPath}`,
+      baseUrl: isImplemetation ? `${paths.appPath}`: '.',
       paths: tsPaths
     }
   };
@@ -65,11 +67,13 @@ function create() {
  */
 function rewrite() {
   const configPath = `${paths.appPath}/tsconfig.paths.json`;
-  let configFileContent = fs.readFileSync(configPath, { encoding: 'utf-8' });
-
+  
   try {
+    let configFileContent = fs.readFileSync(configPath, { encoding: 'utf-8' });
     const config = JSON.parse(configFileContent)
     console.log()
+
+    config.compilerOptions.baseUrl = isImplemetation ? `${paths.appPath}`: '.';
 
     config.compilerOptions.paths = {
       ...config.compilerOptions.paths,
