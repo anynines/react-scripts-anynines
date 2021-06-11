@@ -58,6 +58,24 @@ function getAdditionalModulePaths(options = {}) {
 }
 
 /**
+ * Replaces relative webpack alias paths with absolute ones,
+ * assuming they reference the package root. 
+ * The trailing '/*' coming from TypeScript aleases is removed 
+ * oin any case.
+ * 
+ * @param {String} aliasPath 
+ * @returns The converted path
+ */
+function mapAliasValue(aliasPath) {
+  let mappedPath = aliasPath.replace('/*', '');
+  if (mappedPath.startsWith('.')) {
+    mappedPath = path.join(paths.appPath, mappedPath);
+  }
+
+  return mappedPath;
+}
+
+/**
  * Reads the paths array from tsconfig.paths.json and converts it to an object
  * suitable to be deconstructed into the webpack aliases
  * 
@@ -76,7 +94,7 @@ function parseTypeScriptAliases() {
   const aliasNames = Object.keys(tsAliases);
   aliasNames.forEach((aliasName) => {
     const webpackAliasName = aliasName.replace('/*', '');
-    const webpackAliasValue = tsAliases[aliasName][0].replace('/*', '');
+    const webpackAliasValue = mapAliasValue(tsAliases[aliasName][0]);
     parsedAliases[webpackAliasName] = webpackAliasValue;
   });
 
