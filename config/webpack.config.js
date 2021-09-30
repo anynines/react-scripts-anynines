@@ -404,7 +404,9 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: [paths.appSrc, paths.appNodeModules],
+              include: appPackageJson.dependencies['happy-mobile'] 
+                ? [paths.appSrc,`${paths.appNodeModules}/happy-mobile`]
+                : paths.appSrc,
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(
