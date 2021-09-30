@@ -1,0 +1,282 @@
+diff --git a/node_modules/react-scripts/README.md b/node_modules/react-scripts/README.md
+index d6de290..d4eddc0 100644
+--- a/node_modules/react-scripts/README.md
++++ b/node_modules/react-scripts/README.md
+@@ -1,4 +1,42 @@
+-# react-scripts
++# react-scripts-anynines
++
++This a modified fork of react-scripts that allows TypeScript path aliases.
++It is built specifically to work with the happy-mobile package but can be 
++used for all aliases except those being set automatically (see below).
++
++It expects these to be in a file called tsconfig.paths.json looking e.g. like this: 
++```
++{
++  "compilerOptions": {
++    "baseUrl": ".",
++    "paths": {
++      "src/*": ["src/*"]  
++    }
++  }
++}
++```
++This file has then to be implemented in the regular tsconfig.json:
++```
++{
++  "extends": "./tsconfig.paths.json",
++  "compilerOptions": {
++    ...
++  }
++}
++```
++
++The webpack aliases for building are parsed dynamically from this.
++Other mappings, like for ESLint or Jest have to be set manually.
++
++## Automation 
++
++The following alises are reserved and will be overwritten on each run of react-scripts:
++
++`"@root/*"`, `"@rootSrc"`, `"@src"`
++
++Other alias names can be used as needed.
++
++## react-scripts
+ 
+ This package includes scripts and configuration used by [Create React App](https://github.com/facebook/create-react-app).<br>
+ Please refer to its documentation:
+diff --git a/node_modules/react-scripts/bin/react-scripts.js b/node_modules/react-scripts/bin/react-scripts.js
+index 09604f6..b826797 100755
+--- a/node_modules/react-scripts/bin/react-scripts.js
++++ b/node_modules/react-scripts/bin/react-scripts.js
+@@ -15,6 +15,10 @@ process.on('unhandledRejection', err => {
+   throw err;
+ });
+ 
++// Set the @root/* path alias in typescript.paths.json to the current
++// app directory to work with a Happy Mobile dependency package
++require('react-scripts/config/tsAliases').rewrite()
++
+ const spawn = require('react-dev-utils/crossSpawn');
+ const args = process.argv.slice(2);
+ 
+@@ -24,7 +28,7 @@ const scriptIndex = args.findIndex(
+ const script = scriptIndex === -1 ? args[0] : args[scriptIndex];
+ const nodeArgs = scriptIndex > 0 ? args.slice(0, scriptIndex) : [];
+ 
+-if (['build', 'eject', 'start', 'test'].includes(script)) {
++if (['build', 'eject', 'start', 'test', 'setAliases'].includes(script)) {
+   const result = spawn.sync(
+     process.execPath,
+     nodeArgs
+diff --git a/node_modules/react-scripts/config/modules.js b/node_modules/react-scripts/config/modules.js
+index 2282099..048a921 100644
+--- a/node_modules/react-scripts/config/modules.js
++++ b/node_modules/react-scripts/config/modules.js
+@@ -57,6 +57,52 @@ function getAdditionalModulePaths(options = {}) {
+   );
+ }
+ 
++/**
++ * Replaces relative webpack alias paths with absolute ones,
++ * assuming they reference the package root. 
++ * The trailing '/*' coming from TypeScript aleases is removed 
++ * oin any case.
++ * 
++ * @param {String} aliasPath 
++ * @returns The converted path
++ */
++function mapAliasValue(aliasPath) {
++  let mappedPath = aliasPath.replace('/*', '');
++  if (mappedPath.startsWith('.')) {
++    mappedPath = path.join(paths.appPath, mappedPath);
++  }
++
++  return mappedPath;
++}
++
++/**
++ * Reads the paths array from tsconfig.paths.json and converts it to an object
++ * suitable to be deconstructed into the webpack aliases
++ * 
++ * @returns {Object}
++ */
++function parseTypeScriptAliases() {
++  let parsedAliases = {};
++  let tsAliases;
++  try {
++    tsAliases = require(path.resolve(paths.appPath, 'tsconfig.paths.json')).compilerOptions.paths;
++    console.log('Using TypeScript aliases: ', tsAliases);
++  } catch(error) {
++    return parsedAliases;
++  }
++
++  const aliasNames = Object.keys(tsAliases);
++  aliasNames.forEach((aliasName) => {
++    const webpackAliasName = aliasName.replace('/*', '');
++    const webpackAliasValue = mapAliasValue(tsAliases[aliasName][0]);
++    parsedAliases[webpackAliasName] = webpackAliasValue;
++  });
++
++  console.log('Webpack resolve aliases: ', parsedAliases)
++
++  return parsedAliases;
++}
++
+ /**
+  * Get webpack aliases based on the baseUrl of a compilerOptions object.
+  *
+@@ -74,6 +120,7 @@ function getWebpackAliases(options = {}) {
+   if (path.relative(paths.appPath, baseUrlResolved) === '') {
+     return {
+       src: paths.appSrc,
++      ...parseTypeScriptAliases()
+     };
+   }
+ }
+diff --git a/node_modules/react-scripts/config/tsAliases.js b/node_modules/react-scripts/config/tsAliases.js
+new file mode 100644
+index 0000000..18b4158
+--- /dev/null
++++ b/node_modules/react-scripts/config/tsAliases.js
+@@ -0,0 +1,97 @@
++const fs = require('fs');
++const paths = require('react-scripts/config/paths');
++const appPackage = require(`${paths.appPackageJson}`)
++
++const CORE = 'core';
++const IMPLEMENTATION = 'implementation';
++
++/**
++ * Checks if happy-mobile is present as a package dependency,
++ * otherwise assumes to be running happy-mobile itself.
++ * 
++ * @returns {String}
++ */
++function evaluateHappyMode() {
++  if (
++    appPackage.dependencies
++    && typeof appPackage.dependencies['happy-mobile'] === 'string'
++  ) {
++    return IMPLEMENTATION;
++  } else {
++    return CORE
++  }
++}
++
++/**
++ * Returns the absolute path to the happy source files
++ * based on the result of evaluateHappyMode.
++ * 
++ * @returns path: String
++ */
++// function getHappySrcPath() {
++//   if (evaluateHappyMode() === IMPLEMENTATION) {
++//     return `${paths.appNodeModules}/happy-mobile/src/*`
++//   } else {
++//     return `${paths.appSrc}/*`
++//   }
++// }
++
++const isImplemetation = (evaluateHappyMode() === IMPLEMENTATION)
++
++const tsPaths = {
++  '@root/*': isImplemetation ? [`${paths.appPath}/*`] : ['./*'],
++  '@rootSrc/*': isImplemetation ? [`${paths.appPath}/src/*`] : ['./src/*'],
++  '@src/*': isImplemetation ? [`${paths.appNodeModules}/happy-mobile/src/*`] : ['./src/*']
++}
++
++/**
++ * Creates a new tsconfig.paths.json
++ */
++function create() {
++  const tsOptions = {
++    compilerOptions: {
++      baseUrl: isImplemetation ? `${paths.appPath}`: '.',
++      paths: tsPaths
++    }
++  };
++
++  const config = JSON.stringify(tsOptions, null, 2)
++  console.log('Created path aliases: ', config);
++  const configPath = `${paths.appPath}/tsconfig.paths.json`;
++  fs.writeFileSync(configPath, config)
++}
++
++/**
++ * Writes the current happy-mobile aias parameters into tsconfig.paths.json 
++ * or creates a new file in case of an error.
++ */
++function rewrite() {
++  const configPath = `${paths.appPath}/tsconfig.paths.json`;
++  
++  try {
++    let configFileContent = fs.readFileSync(configPath, { encoding: 'utf-8' });
++    const config = JSON.parse(configFileContent)
++    console.log()
++
++    config.compilerOptions.baseUrl = isImplemetation ? `${paths.appPath}`: '.';
++
++    config.compilerOptions.paths = {
++      ...config.compilerOptions.paths,
++      ...tsPaths
++    }
++
++    console.log(config);
++    configFileContent = JSON.stringify(config, null, 2)
++    fs.writeFileSync(configPath, configFileContent);
++
++  } catch (error) {
++    console.log('ERROR: Could not parse TypeScript aliases: ', error);
++    console.log('Creating new tsconfig.paths.json...');
++    create();
++  }
++}
++
++module.exports = {
++  create: create,
++  rewrite: rewrite
++}
+diff --git a/node_modules/react-scripts/config/webpack.config.js b/node_modules/react-scripts/config/webpack.config.js
+index 26c2a65..25a2b7d 100644
+--- a/node_modules/react-scripts/config/webpack.config.js
++++ b/node_modules/react-scripts/config/webpack.config.js
+@@ -355,6 +355,7 @@ module.exports = function (webpackEnv) {
+         // please link the files into your node_modules/ and let module-resolution kick in.
+         // Make sure your source files are compiled, as they will not be processed in any way.
+         new ModuleScopePlugin(paths.appSrc, [
++          paths.appNodeModules,
+           paths.appPackageJson,
+           reactRefreshOverlayEntry,
+         ]),
+@@ -403,7 +404,7 @@ module.exports = function (webpackEnv) {
+             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
+             {
+               test: /\.(js|mjs|jsx|ts|tsx)$/,
+-              include: paths.appSrc,
++              include: [paths.appSrc, paths.appNodeModules],
+               loader: require.resolve('babel-loader'),
+               options: {
+                 customize: require.resolve(
+diff --git a/node_modules/react-scripts/scripts/setAliases.js b/node_modules/react-scripts/scripts/setAliases.js
+new file mode 100644
+index 0000000..429e659
+--- /dev/null
++++ b/node_modules/react-scripts/scripts/setAliases.js
+@@ -0,0 +1 @@
++require('react-scripts/config/tsAliases').rewrite()
+diff --git a/node_modules/react-scripts/scripts/utils/verifyTypeScriptSetup.js b/node_modules/react-scripts/scripts/utils/verifyTypeScriptSetup.js
+index 949f34a..8c9c79a 100644
+--- a/node_modules/react-scripts/scripts/utils/verifyTypeScriptSetup.js
++++ b/node_modules/react-scripts/scripts/utils/verifyTypeScriptSetup.js
+@@ -155,8 +155,7 @@ function verifyTypeScriptSetup() {
+           ? 'react-jsx'
+           : 'react',
+       reason: 'to support the new JSX transform in React 17',
+-    },
+-    paths: { value: undefined, reason: 'aliased imports are not supported' },
++    }
+   };
+ 
+   const formatDiagnosticHost = {
