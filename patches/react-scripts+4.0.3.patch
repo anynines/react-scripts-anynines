@@ -255,7 +255,9 @@ index 26c2a65..25a2b7d 100644
              {
                test: /\.(js|mjs|jsx|ts|tsx)$/,
 -              include: paths.appSrc,
-+              include: [paths.appSrc, paths.appNodeModules],
++              include: appPackageJson.dependencies['happy-mobile'] 
++               ? [paths.appSrc,`${paths.appNodeModules}/happy-mobile`]
++               : paths.appSrc,
                loader: require.resolve('babel-loader'),
                options: {
                  customize: require.resolve(
