@@ -22,26 +22,12 @@ function evaluateHappyMode() {
   }
 }
 
-/**
- * Returns the absolute path to the happy source files
- * based on the result of evaluateHappyMode.
- * 
- * @returns path: String
- */
-// function getHappySrcPath() {
-//   if (evaluateHappyMode() === IMPLEMENTATION) {
-//     return `${paths.appNodeModules}/happy-mobile/src/*`
-//   } else {
-//     return `${paths.appSrc}/*`
-//   }
-// }
-
 const isImplemetation = (evaluateHappyMode() === IMPLEMENTATION)
 
 const tsPaths = {
-  '@root/*': isImplemetation ? [`${paths.appPath}/*`] : ['./*'],
+  '@src/*': isImplemetation ? [`${paths.appNodeModules}/happy-mobile/src/*`] : ['./src/*'],
   '@rootSrc/*': isImplemetation ? [`${paths.appPath}/src/*`] : ['./src/*'],
-  '@src/*': isImplemetation ? [`${paths.appNodeModules}/happy-mobile/src/*`] : ['./src/*']
+  '@root/*': isImplemetation ? [`${paths.appPath}/*`] : ['./*']
 }
 
 /**
