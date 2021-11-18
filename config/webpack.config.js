@@ -87,6 +87,19 @@ const hasJsxRuntime = (() => {
   }
 })();
 
+// Check if happy-mobile is installed an installed dependency, either as
+// a GitHub package (scoped '@avarteqgmbh') or directly from its repo.
+// If so, include its location in node_modules for bundling.
+const getIncludePaths = () => {
+    if (appPackageJson.dependencies['@avarteqgmbh/happy-mobile']) {
+      return [`${paths.appSrc}`, `${paths.appNodeModules}/@avarteqgmbh/happy-mobile`];
+    } else if (appPackageJson.dependencies['happy-mobile']) {
+      return [`${paths.appSrc}`, `${paths.appNodeModules}/${happyModuleScope}/happy-mobile`];
+    } else {
+    return [`${paths.appSrc}`];
+  }
+}
+
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function (webpackEnv) {
@@ -404,9 +417,7 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: appPackageJson.dependencies['happy-mobile'] 
-                ? [paths.appSrc,`${paths.appNodeModules}/happy-mobile`]
-                : paths.appSrc,
+              include: getIncludePaths(),
               loader: require.resolve('babel-loader'),
               options: {
                 customize: require.resolve(
@@ -799,3 +810,7 @@ module.exports = function (webpackEnv) {
     performance: false,
   };
 };
+const happyPath = appPackageJson.dependencies['@avarteqgmbh/happy-mobile'] 
+? [paths.appSrc,`${paths.appNodeModules}/@avarteqgmbh/happy-mobile`]
+: paths.appSrc;
+console.log('HAPPY: ', happyPath);

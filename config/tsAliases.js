@@ -14,7 +14,8 @@ const IMPLEMENTATION = 'implementation';
 function evaluateHappyMode() {
   if (
     appPackage.dependencies
-    && typeof appPackage.dependencies['happy-mobile'] === 'string'
+    && (typeof appPackage.dependencies['@avarteqgmbh/happy-mobile'] === 'string'
+    || typeof appPackage.dependencies['happy-mobile'] === 'string')
   ) {
     return IMPLEMENTATION;
   } else {
@@ -22,13 +23,34 @@ function evaluateHappyMode() {
   }
 }
 
+/**
+ * Returns the absolute path to the happy source files
+ * based on the result of evaluateHappyMode.
+ * 
+ * @returns path: String
+ */
+function getHappySrcPath() {
+  if (evaluateHappyMode() === IMPLEMENTATION) {
+    let happyModuleScope = ''
+    if (typeof appPackage.dependencies['@avarteqgmbh/happy-mobile'] === 'string') {
+      happyModuleScope = '@avarteqgmbh'
+    }
+    return `${paths.appNodeModules}/${happyModuleScope}/happy-mobile/src/*`
+  } else {
+    return `${paths.appSrc}/*`
+  }
+}
+
 const isImplemetation = (evaluateHappyMode() === IMPLEMENTATION)
 
 const tsPaths = {
-  '@src/*': isImplemetation ? [`${paths.appNodeModules}/happy-mobile/src/*`] : ['./src/*'],
+  '@root/*': isImplemetation ? [`${paths.appPath}/*`] : ['./*'],
   '@rootSrc/*': isImplemetation ? [`${paths.appPath}/src/*`] : ['./src/*'],
-  '@root/*': isImplemetation ? [`${paths.appPath}/*`] : ['./*']
+  '@src/*': [getHappySrcPath()]
 }
+
+console.log('@src: ', getHappySrcPath());
+console.log(appPackage.dependencies['@avarteqgmbh/happy-mobile']);
 
 /**
  * Creates a new tsconfig.paths.json
