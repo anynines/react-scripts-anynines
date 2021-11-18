@@ -28,6 +28,12 @@ This file has then to be implemented in the regular tsconfig.json:
 The webpack aliases for building are parsed dynamically from this.
 Other mappings, like for ESLint or Jest have to be set manually.
 
+## Note: Deprecation
+
+This version of the scripts expects the happy depency to be installed as `"happy-mobile"`, meaning it is installed directly from the GitHub repo. 
+
+In newer versions this is still suported but but imports should be done from `"@avarteqgmbh/happy-mobile"`.
+
 ## Automation 
 
 The following alises are reserved and will be overwritten on each run of react-scripts:
