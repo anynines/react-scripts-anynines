@@ -28,6 +28,9 @@ This file has then to be implemented in the regular tsconfig.json:
 The webpack aliases for building are parsed dynamically from this.
 Other mappings, like for ESLint or Jest have to be set manually.
 
+Happy Mobile can be installed either from GiitHub packages as `"@avarteqgmbh/happy-mobile"`
+or from the repository as `"happy-mobile@git+https://github.com/<path-to-repository.git[#<commit-ish>]>"`.
+
 ## Automation 
 
 The following alises are reserved and will be overwritten on each run of react-scripts:
