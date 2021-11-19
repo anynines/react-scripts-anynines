@@ -94,7 +94,7 @@ const getIncludePaths = () => {
     if (appPackageJson.dependencies['@avarteqgmbh/happy-mobile']) {
       return [`${paths.appSrc}`, `${paths.appNodeModules}/@avarteqgmbh/happy-mobile`];
     } else if (appPackageJson.dependencies['happy-mobile']) {
-      return [`${paths.appSrc}`, `${paths.appNodeModules}/${happyModuleScope}/happy-mobile`];
+      return [`${paths.appSrc}`, `${paths.appNodeModules}/happy-mobile`];
     } else {
     return [`${paths.appSrc}`];
   }
@@ -810,7 +810,3 @@ module.exports = function (webpackEnv) {
     performance: false,
   };
 };
-const happyPath = appPackageJson.dependencies['@avarteqgmbh/happy-mobile'] 
-? [paths.appSrc,`${paths.appNodeModules}/@avarteqgmbh/happy-mobile`]
-: paths.appSrc;
-console.log('HAPPY: ', happyPath);
