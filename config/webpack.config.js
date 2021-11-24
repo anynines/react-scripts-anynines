@@ -463,6 +463,12 @@ module.exports = function (webpackEnv) {
                       },
                     },
                   ],
+                  [
+                    require.resolve('babel-plugin-direct-import'),
+                    { 
+                      modules: ['@mui/material', '@mui/icons-material'] 
+                    },
+                  ],
                   isEnvDevelopment &&
                     shouldUseReactRefresh &&
                     require.resolve('react-refresh/babel'),
