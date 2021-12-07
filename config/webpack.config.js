@@ -464,6 +464,14 @@ module.exports = function (webpackEnv) {
                     },
                   ],
                   [
+                    require.resolve('babel-plugin-transform-imports'),
+                    { 
+                      '@mui/icons-material': {
+                        transform: '@mui/icons-material/esm/${member}'
+                      }
+                    },
+                  ],
+                  [
                     require.resolve('babel-plugin-direct-import'),
                     { 
                       modules: ['@mui/material', '@mui/icons-material'] 
